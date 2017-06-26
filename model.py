@@ -3,7 +3,7 @@ import os
 import time
 from glob import glob
 import tensorflow as tf
-from six.moves import xrange
+from six.moves import range
 from scipy.misc import imresize
 from subpixel import PS
 
@@ -111,19 +111,31 @@ class DCGAN(object):
         counter = 1
         start_time = time.time()
 
+
+        print("******************************************************")
+        print("checkpoint dir: " + str(self.checkpoint_dir))
+        print("******************************************************")
+
         if self.load(self.checkpoint_dir):
             print(" [*] Load SUCCESS")
         else:
             print(" [!] Load failed...")
 
+        print("******************************************************")
+        print("here")
+        print("******************************************************")
         # we only save the validation inputs once
         have_saved_inputs = False
 
-        for epoch in xrange(config.epoch):
+        for epoch in range(config.epoch):
+
+            print("******************************************************")
+            print("here2")
+            print("******************************************************")
             data = sorted(glob(os.path.join("./data", config.dataset, "train", "*.jpg")))
             batch_idxs = min(len(data), config.train_size) // config.batch_size
 
-            for idx in xrange(0, batch_idxs):
+            for idx in range(0, batch_idxs):
                 batch_files = data[idx*config.batch_size:(idx+1)*config.batch_size]
                 batch = [get_image(batch_file, self.image_size, is_crop=self.is_crop) for batch_file in batch_files]
                 input_batch = [doresize(xx, [self.input_size,]*2) for xx in batch]

@@ -94,8 +94,8 @@ def to_json(output_path, *layers):
 
                 lines += """
                     var layer_%s = {
-                        "layer_type": "fc", 
-                        "sy": 1, "sx": 1, 
+                        "layer_type": "fc",
+                        "sy": 1, "sx": 1,
                         "out_sx": 1, "out_sy": 1,
                         "stride": 1, "pad": 0,
                         "out_depth": %s, "in_depth": %s,
@@ -111,7 +111,7 @@ def to_json(output_path, *layers):
 
                 lines += """
                     var layer_%s = {
-                        "layer_type": "deconv", 
+                        "layer_type": "deconv",
                         "sy": 5, "sx": 5,
                         "out_sx": %s, "out_sy": %s,
                         "stride": 2, "pad": 1,
@@ -148,7 +148,7 @@ def visualize(sess, dcgan, config, option):
     save_images(samples, [8, 8], './samples/test_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
   elif option == 1:
     values = np.arange(0, 1, 1./config.batch_size)
-    for idx in xrange(100):
+    for idx in range(100):
       print(" [*] %d" % idx)
       z_sample = np.zeros([config.batch_size, dcgan.z_dim])
       for kdx, z in enumerate(z_sample):
@@ -158,7 +158,7 @@ def visualize(sess, dcgan, config, option):
       save_images(samples, [8, 8], './samples/test_arange_%s.png' % (idx))
   elif option == 2:
     values = np.arange(0, 1, 1./config.batch_size)
-    for idx in [random.randint(0, 99) for _ in xrange(100)]:
+    for idx in [random.randint(0, 99) for _ in range(100)]:
       print(" [*] %d" % idx)
       z = np.random.uniform(-0.2, 0.2, size=(dcgan.z_dim))
       z_sample = np.tile(z, (config.batch_size, 1))
@@ -170,7 +170,7 @@ def visualize(sess, dcgan, config, option):
       make_gif(samples, './samples/test_gif_%s.gif' % (idx))
   elif option == 3:
     values = np.arange(0, 1, 1./config.batch_size)
-    for idx in xrange(100):
+    for idx in range(100):
       print(" [*] %d" % idx)
       z_sample = np.zeros([config.batch_size, dcgan.z_dim])
       for kdx, z in enumerate(z_sample):
@@ -182,7 +182,7 @@ def visualize(sess, dcgan, config, option):
     image_set = []
     values = np.arange(0, 1, 1./config.batch_size)
 
-    for idx in xrange(100):
+    for idx in range(100):
       print(" [*] %d" % idx)
       z_sample = np.zeros([config.batch_size, dcgan.z_dim])
       for kdx, z in enumerate(z_sample): z[idx] = values[kdx]
