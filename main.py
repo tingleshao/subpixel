@@ -25,6 +25,7 @@ flags.DEFINE_boolean("visualize", False, "True for visualizing, False for nothin
 FLAGS = flags.FLAGS
 
 
+# TODO: test me 
 def main(_):
     pp.pprint(flags.FLAGS.__flags)
 
