@@ -3,7 +3,7 @@ import os
 import time
 from glob import glob
 import tensorflow as tf
-from six.moves import range
+from six.moves import xrange
 from scipy.misc import imresize
 from subpixel import PS
 
@@ -89,8 +89,8 @@ class DCGAN(object):
     def train(self, config):
         """Train DCGAN"""
         # first setup validation data
-    #    print("config dataset" + config.dataset)
         data = sorted(glob(os.path.join("./data", config.dataset, "valid", "*.jpg")))
+
         g_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
                           .minimize(self.g_loss, var_list=self.g_vars)
         tf.initialize_all_variables().run()
@@ -111,31 +111,19 @@ class DCGAN(object):
         counter = 1
         start_time = time.time()
 
-
-        print("******************************************************")
-        print("checkpoint dir: " + str(self.checkpoint_dir))
-        print("******************************************************")
-
         if self.load(self.checkpoint_dir):
             print(" [*] Load SUCCESS")
         else:
             print(" [!] Load failed...")
 
-        print("******************************************************")
-        print("here")
-        print("******************************************************")
         # we only save the validation inputs once
         have_saved_inputs = False
 
-        for epoch in range(config.epoch):
-
-            print("******************************************************")
-            print("here2")
-            print("******************************************************")
+        for epoch in xrange(config.epoch):
             data = sorted(glob(os.path.join("./data", config.dataset, "train", "*.jpg")))
             batch_idxs = min(len(data), config.train_size) // config.batch_size
 
-            for idx in range(0, batch_idxs):
+            for idx in xrange(0, batch_idxs):
                 batch_files = data[idx*config.batch_size:(idx+1)*config.batch_size]
                 batch = [get_image(batch_file, self.image_size, is_crop=self.is_crop) for batch_file in batch_files]
                 input_batch = [doresize(xx, [self.input_size,]*2) for xx in batch]
@@ -169,6 +157,7 @@ class DCGAN(object):
 
     def generator(self, z):
         # project `z` and reshape
+        # > Three levels of deconvolution
         self.h0, self.h0_w, self.h0_b = deconv2d(z, [self.batch_size, 32, 32, self.gf_dim], k_h=1, k_w=1, d_h=1, d_w=1, name='g_h0', with_w=True)
         h0 = lrelu(self.h0)
 
@@ -178,15 +167,20 @@ class DCGAN(object):
         h2, self.h2_w, self.h2_b = deconv2d(h1, [self.batch_size, 32, 32, 3*16], d_h=1, d_w=1, name='g_h2', with_w=True)
         h2 = PS(h2, 4, color=True)
 
-        return tf.nn.tanh(h2)
+        return tf.nn.tanh(h2) # > TODO: why conmpute tanh?
+
+    def sampler(self, z):
+        return self.generator(z)
+
+    def test(self):
+        return self.G_sum
+    #    self.G_sum = tf.summary.image("G", self.G)
+    #    return self.G_sum
 
     def save(self, checkpoint_dir, step):
         model_name = "DCGAN.model"
         model_dir = "%s_%s" % (self.dataset_name, self.batch_size)
         checkpoint_dir = os.path.join(checkpoint_dir, model_dir)
-        print("******************************************************")
-        print("checkpoint dir: " + str(checkpoint_dir))
-        print("******************************************************")
 
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
