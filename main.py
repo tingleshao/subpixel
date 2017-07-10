@@ -1,11 +1,11 @@
 import os
 import scipy.misc
 import numpy as np
-
-from model import DCGAN
-from utils import pp, visualize, to_json
-
+from model import DCGAN, doresize
+from utils import pp, visualize, to_json, get_image, inverse_transform, imread
 import tensorflow as tf
+from glob import glob
+from PIL import Image
 
 
 # > Define some values
@@ -25,7 +25,6 @@ flags.DEFINE_boolean("visualize", False, "True for visualizing, False for nothin
 FLAGS = flags.FLAGS
 
 
-# TODO: test me
 def main(_):
     pp.pprint(flags.FLAGS.__flags)
 
@@ -51,15 +50,32 @@ def main(_):
     #        self.up_inputs = tf.image.resize_images(self.inputs, [self.image_shape[0], self.image_shape[1]], tf.image.ResizeMethod.NEAREST_NEIGHBOR)
     #        self.G = dcgan.generator(z)
     #        self.G_sum = tf.summary.image("G", self.G)
-            sample_size = 1
+            config = FLAGS
+            sample_size = 64
             data = sorted(glob(os.path.join("./data", config.dataset, "valid", "*.jpg")))
+            print(data)
             sample_files = data[0:sample_size]
+            FLAGS.is_crop = True
             sample = [get_image(sample_file, FLAGS.image_size, is_crop=FLAGS.is_crop) for sample_file in sample_files]
+        #    img = Image.fromarray(a[0][1,:,:,:], 'RGB')
+        #    img.show()
+            img = Image.fromarray(np.uint8(imread(sample_files[0])), 'RGB')
+            img.show()
+            print(sample[0].shape)
+            img = Image.fromarray(np.uint8(inverse_transform(sample[0])*255), 'RGB')
+            img.show()
             sample_inputs = [doresize(xx, [32,]*2) for xx in sample]
-            sample_images = np.array(sample).astype(np.float32)
+            img = Image.fromarray(np.uint8(inverse_transform(sample_inputs[0])), 'RGB')
+            img.show()
+        #    sample_images = np.array(sample).astype(np.float32)
             sample_input_images = np.array(sample_inputs).astype(np.float32)
-            sess.run(dcgan.test, feed_dict={dcgan.inputs: sample_input_images})
-            return degan.G_sum
+            a = sess.run([dcgan.G], feed_dict={dcgan.inputs: sample_input_images})
+        ##    jpeg_image = PIL.Image.open(a[0])
+        #    plt.imshow(jpeg_image)
+            print(a[0].shape)
+            img = Image.fromarray(np.uint8(((a[0][0,:,:,:])+1.0)*127.5), 'RGB')
+            img.show()
+    #        return a
 
         if FLAGS.visualize:
             to_json("./web/js/layers.js", [dcgan.h0_w, dcgan.h0_b, dcgan.g_bn0],

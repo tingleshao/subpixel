@@ -11,7 +11,7 @@ def _phase_shift(I, r):
    # X = tf.split(1, a, X)  # a, [bsize, b, r, r]
     X = tf.split(X, a, 1)
   #  X = tf.concat(2, [tf.squeeze(x, axis=1) for x in X])  # bsize, b, a*r, r
-    X = tf.concat([tf.squeeze(x, axis=1) for x in X], 2) 
+    X = tf.concat([tf.squeeze(x, axis=1) for x in X], 2)
  #  X = tf.split(1, b, X)  # b, [bsize, a*r, r]
     X = tf.split(X, b, 1)
 #    X = tf.concat(2, [tf.squeeze(x, axis=1) for x in X])  # bsize, a*r, b*r
@@ -40,6 +40,6 @@ if __name__ == "__main__":
         X2 = tf.placeholder("float32", shape=(2, 8, 8, 4*3), name="X")# tf.Variable(x, name="X")
         Y2 = PS(X2, 2, color=True)
         y2 = sess.run(Y2, feed_dict={X2: x2})
-        print y2.shape
+        print(y2.shape)
     plt.imshow(y[0, :, :, 0], interpolation="none")
     plt.show()
